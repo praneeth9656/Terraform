@@ -58,3 +58,28 @@ resource "aws_route_table_association" "routetable_association" {
   route_table_id = aws_route_table.route_table[0].id
   
 }
+resource "aws_instance" "EC2_Instance" {
+  count = var.env=="PROD" ? 3 :1
+  ami = lookup(var.amis,"us-east-1")
+  instance_type = "t2.micro"
+  associate_public_ip_address = true
+  subnet_id = aws_subnet.VPC1_subnets[count.index].id
+  security_groups = [ "sg-085936b2b92fd8144" ]
+  key_name = "keypair1"
+  tags = {
+    Name = "My-Server${count.index}"
+
+  }
+  user_data = <<-EOF
+       #! /bin/bash
+          sudo yum update -y
+         sudo yum install httpd -y
+         sudo systemctl start httpd
+         sudo systemctl enable httpd
+         curl http://checkip.amazonaws.com >> /var/www/html/index.html
+         echo "<h1>The page was created by the user data</h1>" >> /var/www/html/index.html
+
+
+
+  EOF
+}
