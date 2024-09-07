@@ -138,7 +138,7 @@ resource "aws_route_table_association" "public_subnet_association" {
 resource "aws_route_table_association" "private_subnet_association" {
   count = length(var.private_subnet_cidr)
   subnet_id = element(aws_subnet.private[*].id, count.index)
-  route_table_id = aws_route_table.public.id
+  route_table_id = aws_route_table.private.id
 }
 
 resource "aws_route_table_association" "database_subnet_association" {
